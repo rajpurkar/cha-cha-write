@@ -1,0 +1,133 @@
+doctype html
+html(lang='en-US')
+	head
+		meta(charset='utf-8')
+		title Cha-Cha-Write
+		meta(name='author', content='')
+		link(rel='shortcut icon', href='/favicon.ico')
+		link(rel='stylesheet', type='text/css', href='https://www.smore.com/css/clippyjs.css', media='all')
+	body
+		.window-wrapper
+			.window
+				.window-border
+					.title-bar.h-count
+						.control-box
+							a.button-3d.minimize
+								span  
+							a.button-3d.maximize
+								span  
+							a.button-3d.close
+								span  
+						span.title
+							| Cha-Cha-Write
+					.menu-bar.h-count
+						a
+							span F
+							| ile
+						a
+							span E
+							| dit
+						a
+							span V
+							| iew
+						a
+							span I
+							| nsert
+						a
+							| F
+							span o
+							| rmat
+						a
+							span T
+							| ools
+						a
+							| T
+							span a
+							| ble
+						a
+							span W
+							| indow
+						a
+							span H
+							| elp
+						.clear
+					.toolbar.float-left
+						a.b-new
+						a.b-open
+						a.b-save
+						span.sep
+						a.b-print
+						a.b-spell
+						span.sep
+						a.b-copy
+						a.b-paste
+						span.sep
+						a.b-undo(data-cmd='undo')
+						a.b-redo(data-cmd='redo')
+						.clear
+					.toolbar.float-left
+						a.b-style
+						.picker
+							span.arrow
+							| Normal
+						.picker
+							span.arrow
+							| Times New Roman
+						.picker
+							span.arrow
+							| 12
+						span.sep
+						a.b-bold(data-cmd='bold')
+						a.b-italic(data-cmd='italic')
+						a.b-underline(data-cmd='underline')
+						span.sep
+						a.b-left(data-cmd='justifyLeft')
+						a.b-center(data-cmd='justifyCenter')
+						a.b-right(data-cmd='justifyRight')
+						.clear
+					.clear
+					.content
+						.content-box
+							.top-ruler.h-count
+								.ruler
+							.left-ruler
+							.document-scroller
+								.document-content
+									.document.container
+										.document-wrap(contenteditable='true')
+											.element.element-title.twelve.columns.alpha
+												h1 Cha-Cha Write
+												h2
+													| Doing the best prediction in writing
+											.element.element-header.twelve.columns.alpha
+												h3 Demonstration
+											.element.element-text.twelve.columns.alpha
+												| Hello
+											.clear
+					.status-bar.h-count
+						.status-bar-content
+							span.box
+								| Page 1
+								| Sec 1
+								| 1/1
+							span.box
+								| At 1"
+								| Ln 1
+								| Col 1
+							span.box.disabled
+								| REC
+							span.box.disabled
+								| TRK
+							span.box.disabled
+								| EXT
+							span.box.disabled
+								| OVR
+			script(type='text/javascript', src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js')
+			script(type='text/javascript', src='/javascripts/main.js')
+			script(type='text/javascript').
+				var a;
+				clippy.load('Clippy', function(agent) {
+				a = agent;
+				// Do anything with the loaded agent
+				agent.show();
+				});
