@@ -1,13 +1,26 @@
 body {
-  background: #E4E4E4;
-  font-family: "Open Sans", sans-serif;
-  font-size: 16px;
+	background: #E4E4E4;
+	font-family: "Open Sans", sans-serif;
+	font-size: 16px;
 }
 
-.doc {
-  margin: 10px auto;
-  background: #fff;
-  min-height: 850px;
-  padding: 35px;
-  outline: none;
+#doc {
+	margin: 12px auto;
+	background: #fff;
+	min-height: 910px;
+	padding: 55px 50px;
+	outline: none;
+	box-shadow: .1px .1px 10px 0px #555;
+}
+
+#sidebar{
+	background: #FCFCFC;
+	margin: 35px auto;
+	padding: 20px;
+	min-height: 350px;
+	word-wrap: break-word;
+}
+
+#sidebar-title{
+	border-bottom: 2px solid #ddd;
 }
