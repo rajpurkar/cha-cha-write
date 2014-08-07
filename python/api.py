@@ -76,7 +76,7 @@ def min_dist(v1,o1,v2,o2,n):
   sort_dists = sorted(dists, key=lambda x:x[2])
   paths = [grams_between(min(x[:2]),max(x[:2])) for x in sort_dists[:n]]
   #results = [{"index_1":t[0]["index"], "index_2":t[1]["index"], "dist":t[2]} for t in sort_dists[:10]]
-  results = [[just_keys(["verb","object","count"],y) for y in x] for x in paths[:n]]
+  results = [[just_keys(["verb","object"],y) for y in x] for x in paths[:n]]
   return dumps()
 
 @app.route("/gram_range/<b>/<e>")
