@@ -1,12 +1,33 @@
 (function($){
+	function supportsLocalStorage() {
+    return ('localStorage' in window) && window['localStorage'] !== null;
+	}
+
+	function saveState(){
+		if (!supportsLocalStorage()) { 
+			return false; 
+		}
+		localStorage["text"] = $("#doc").text();
+		return true;
+	}
+
+	function resumeState(){
+		if (!supportsLocalStorage()) { return false; }
+		$("#doc").text(localStorage["text"]);
+		return true;
+	}
+
 	function updateSoFar(data){
 		$("#soFar-text").empty();
-		for(var i = 0; i < data.length; i++){
+		var start = data.length - 5;
+		if (start < 0){ start = 0; }
+		//start = 0
+		for(var i = start; i < data.length; i++){
 			$("#soFar-text").append("<h3 class='soFar'>" + String(data[i]).split(",").join(" ") + "</h3>");
 		};
 	}
 	function processInput(){
-		var presentText = $("#doc").text();
+		var presentText = $("#doc").text().replace(",", ".");
 		$.get( "http://localhost:5000/convert/" + presentText, function(data){
 			data = JSON.parse(data);
 			updateSoFar(data);
@@ -17,7 +38,7 @@
 		});
 	}
 	$("#doc").keypress(function(e) {
-		console.log(e.keyCode);
+		saveState();
 		if(e.keyCode === 46){
 			processInput();
 		}
@@ -33,4 +54,9 @@
 			}	
 		});	
 	}
+
+	if(resumeState()){
+		processInput();
+    }
 })($);
+
