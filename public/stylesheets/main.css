@@ -2,6 +2,11 @@ body {
 	background: #E4E4E4;
 	font-family: "Open Sans", sans-serif;
 	font-size: 16px;
+	font-weight: 300;
+}
+
+h1,h2,h3,li,p{
+	font-weight: 300;
 }
 
 #doc {
@@ -23,4 +28,14 @@ body {
 
 #sidebar-title{
 	border-bottom: 2px solid #ddd;
+}
+
+.soFar{
+	font-weight: 200;
+	color: #3bb;
+}
+
+.next{
+	font-weight: 200;
+	color: #F78658;
 }
