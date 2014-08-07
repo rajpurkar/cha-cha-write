@@ -1,0 +1,7 @@
+extends layout
+
+block content
+	each path in paths
+		ul
+		each rel in path
+			li #{rel.verb} #{rel.object}
