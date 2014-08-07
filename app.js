@@ -33,7 +33,6 @@ app.get('/test', function (req, res){
 app.get('/path/:v1/:o1/:v2/:o2', function(req, res){
     var obj = {}
     request('http://localhost:5000/find_paths/' + req.params.v1 + '/' + req.params.o1 + '/' + req.params.v2 + '/'  + req.params.o2 + '/10' , function (error, response, body) {
-       
        body = JSON.parse(body);
         for(var i = 0; i < body.length; i++){
             var path = body[i];
@@ -49,6 +48,79 @@ app.get('/path/:v1/:o1/:v2/:o2', function(req, res){
         res.send(sorted_obj);
         
         //res.render('path', {paths: JSON.parse(body)});
+    });
+});
+
+function getCount(item, callback){
+    request('http://localhost:5000/gram/' + item.v2 + '/' + item.o2, function(error, response,body){
+        if(error){ callback(err, null); }
+        body = JSON.parse(body);
+        callback(null, body)
+    });
+}
+
+
+function downloadEdge(item, callback){
+    var item = String(item).split(',');
+    request('http://localhost:5000/edges/' + item[0] + '/' + item[1] + '/5/no_blank', function(error, response, body){
+        if(error){ callback(err, null); }
+        //callback(null, body);
+        var predictions = {}
+        body = JSON.parse(body);
+        async.map(body, getCount, function(err, results){
+            if(err) {callback(err, null);}
+            for(var k = 0; k < results.length; k++){
+                var kth = results[k];
+                predictions[kth.verb + " "  + kth["object"]] = body[k].count / ((1.0)*kth.count);
+            }
+            callback(null, predictions);
+        });
+    });
+
+}
+
+function sortObject(obj) {
+    var arr = [];
+    for (var prop in obj) {
+        if (obj.hasOwnProperty(prop)) {
+            arr.push({
+                'action': prop,
+                'freq': obj[prop]
+            });
+        }
+    }
+    arr.sort(function(a, b) { return b.freq - a.freq; });
+    //arr.sort(function(a, b) { a.value.toLowerCase().localeCompare(b.value.toLowerCase()); }); //use this to sort as strings
+    return arr; // returns array
+}
+
+
+app.get('/predict/:text', function(req, res){
+    request("http://localhost:5000/convert/" + req.params.text, function(error, response, body){
+        body = JSON.parse(body);
+        if(body.length > 0){
+            async.map(body, downloadEdge, function(err, results){
+                total = {}
+                for(var i = 0; i < results.length; i++){
+                    var d = results[i];
+                    for(var item in d){
+                        if(!(item in total)){
+                            total[item] = 0;
+                        }
+                        total[item] += d[item]*(i+1)*0.1;
+                    }
+                }
+                toIgnore = {}
+                for(var i = 0; i < body.length; i++){
+                    toIgnore[body[i][0] + " " + body[i][1]] = "yes";
+                }
+                sortedTotal = sortObject(total)
+                sortedTotal = sortedTotal.filter(function(element){
+                    return !(element.action in toIgnore);
+                });
+                res.send({soFar: body, predictions:sortedTotal});
+            });
+        } else { res.send(null);}
     });
 });
 
