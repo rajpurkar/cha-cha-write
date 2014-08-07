@@ -28,15 +28,17 @@
 	}
 	function processInput(){
 		var presentText = $("#doc").text().replace(",", ".");
-		$.get( "http://localhost:5000/convert/" + presentText, function(data){
-			data = JSON.parse(data);
-			updateSoFar(data);
-			if(data.length > 0){
-				var toSearchForPredict = String(data[data.length-1]).split(',');
-				getPredictions('http://localhost:5000/edges/' + toSearchForPredict[0] + '/' + toSearchForPredict[1] + '/5/no_blank')
+		$.get( "/predict/" + presentText, function(data){
+			updateSoFar(data.soFar)
+			$("#next-text").empty();
+			data = data.predictions
+			for(var k = 0; k < 5; k++){
+				var kth = data[k];
+				$("#next-text").append("<h3 class='next'>" + String(kth.action) + "</h3>");
 			}
 		});
 	}
+
 	$("#doc").keypress(function(e) {
 		saveState();
 		if(e.keyCode === 46){
