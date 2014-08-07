@@ -10,6 +10,7 @@ var http = require('http');
 var request = require('request');
 var async = require('async');
 var _ = require('underscore');
+var fs = require('fs');
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -46,10 +47,27 @@ app.get('/path/:v1/:o1/:v2/:o2', function(req, res){
         }
         sorted_obj = _.sortBy(_.filter(_.map(obj, function(v,k){return [v,k] }), function(x){ return x[0] > 1 }), function(x) { return -1 * x[0] })
         res.send(sorted_obj);
-        
         //res.render('path', {paths: JSON.parse(body)});
     });
 });
+
+var objects = null;
+
+function getObjects(objects, callback){
+    if(objects == null){
+        fs.readFile('/objects-unnormalized.json', 'utf8', function (err, data) {
+            if (err) {
+                console.log('Error: ' + err);
+                return;
+            }
+            alreadyRead = true;
+            objects = JSON.parse(data);
+            callback(objects);
+        });
+    }else{
+        callback(objects);
+    }
+}
 
 function getCount(item, callback){
     request('http://localhost:5000/gram/' + item.v2 + '/' + item.o2, function(error, response,body){
@@ -94,6 +112,9 @@ function sortObject(obj) {
     return arr; // returns array
 }
 
+app.get('/relevant', function(req, res){
+    
+}
 
 app.get('/predict/:text', function(req, res){
     request("http://localhost:5000/convert/" + req.params.text, function(error, response, body){
