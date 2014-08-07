@@ -5,8 +5,12 @@ from pymongo import MongoClient
 from flask_cors import *
 from relgrams import *
 import json
+from flask.ext.cache import Cache
+
+
 app = Flask(__name__)
 
+cache = Cache(app,config={'CACHE_TYPE': 'simple'})
 
 client = MongoClient('mongodb://ethan:ethan@candidate.35.mongolayer.com:10095/app27963874')
 db = client['app27963874']
@@ -28,6 +32,7 @@ def just_keys(keys,d):
 @app.route("/edges/<v>/<o>/<l>")
 @app.route("/edges/<v>/<o>/<l>/<nb>")
 @cross_origin(headers=['Content-Type'])
+@cache.memoize(timeout=500)
 def edges(v,o,l=10,nb=""):
   l = int(l)
   s = {"v1":v, "o1":o}
@@ -42,6 +47,7 @@ def edges(v,o,l=10,nb=""):
 
 @app.route("/gram/<v>/<o>")
 @cross_origin(headers=['Content-Type'])
+@cache.memoize(timeout=500)
 def gram(v,o):
   s = grams.find_one({"verb":v,"object":o})
   return json.dumps({"verb":s["verb"], "object":s["object"], "count":s["count"]})
@@ -93,6 +99,7 @@ def hello():
 
 @app.route('/convert/<sent>')
 @cross_origin(headers=['Content-Type'])
+@cache.memoize(timeout=500)
 def convert_sentence(sent):
 	return json.dumps(reverb_like_thing(sent));
 
