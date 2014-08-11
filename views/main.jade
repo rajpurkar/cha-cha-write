@@ -7,25 +7,20 @@ html
 		meta(name='description', content='Predict the future')
 		meta(name='author', content='Pranav Rajpurkar')
 		meta(name='viewport', content='width=device-width initial-scale=1.0 user-scalable=yes')
-		link(href='//fonts.googleapis.com/css?family=Open+Sans:100,200,300,400', rel='stylesheet', type='text/css')
+		//link(href='//fonts.googleapis.com/css?family=Open+Sans:100,200,300,400', rel='stylesheet', type='text/css')
 		link(rel='stylesheet', type='text/css', href='/stylesheets/bootstrap.css', media='all')
 		link(rel='stylesheet', type='text/css', href='/stylesheets/main.css', media='all')
 	body
 		section
 			.container
 				.row
-					.col-md-7.col-md-offset-1
+					.col-sm-5.col-sm-offset-4
 						#doc(contenteditable='true')
-									.clear      
-					.col-md-4
-						#sidebar
-							#sidebar-title
-								h2 CreativeBoard
-							#sidebar-text
-								#soFar-text
-								<br/>
-								#next-text
-
-
+							.clear      
+						#sidebar(contenteditable='true')
+							#sidebar-text-new
+								#soFar-text-new
+								#next-text-new
+									| Horse Shoe Horse Shoe Horse Shoe Horse Shoe Horse Shoe Horse Shoe Horse Shoe Horse Shoe Horse ShoeHorse Shoe Horse Shoe Horse Shoe Horse Shoe Horse Shoe Horse
 		script(src="/javascripts/jquery.js")
 		script(src="/javascripts/main.js")
