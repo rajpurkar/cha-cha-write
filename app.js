@@ -53,9 +53,9 @@ app.get('/path/:v1/:o1/:v2/:o2', function(req, res){
 
 var objects = null;
 
-function getObjects(objects, callback){
+function getObjects(obj, callback){
     if(objects == null){
-        fs.readFile('/objects-unnormalized.json', 'utf8', function (err, data) {
+        fs.readFile('./objects-unnormalized.json', 'utf8', function (err, data) {
             if (err) {
                 console.log('Error: ' + err);
                 return;
@@ -112,12 +112,17 @@ function sortObject(obj) {
     return arr; // returns array
 }
 
-app.get('/relevant', function(req, res){
-    
-}
+app.get('/relevant/:list', function(req, res){
+    var list = req.params.list.split(',');
+    getObjects(list, function(objects){
+        res.send(objects);
+    });
+});
 
 app.get('/predict/:text', function(req, res){
     request("http://localhost:5000/convert/" + req.params.text, function(error, response, body){
+        if(error){ res.send(null)}
+        //if(body)
         body = JSON.parse(body);
         if(body.length > 0){
             async.map(body, downloadEdge, function(err, results){
