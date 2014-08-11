@@ -18,6 +18,7 @@
 	}
 
 	function updateSoFar(data){
+		if(data == undefined){ return; }
 		$("#soFar-text").empty();
 		var start = data.length - 5;
 		if (start < 0){ start = 0; }
@@ -29,10 +30,13 @@
 	function processInput(){
 		var presentText = $("#doc").text().replace(",", ".");
 		$.get( "/predict/" + presentText, function(data){
+			if(data == undefined) return;
 			updateSoFar(data.soFar)
 			$("#next-text").empty();
-			data = data.predictions
-			for(var k = 0; k < 5; k++){
+			data = data.predictions;
+			var max = data.length;
+			if(max > 5) { max = 5}
+			for(var k = 0; k < max; k++){
 				var kth = data[k];
 				$("#next-text").append("<h3 class='next'>" + String(kth.action) + "</h3>");
 			}
