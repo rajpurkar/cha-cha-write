@@ -13,6 +13,11 @@ var _ = require('underscore');
 var fs = require('fs');
 var pos = require('pos');
 var natural = require('natural');
+var Lemmer = require('node-lemmer').Lemmer;
+var prettyjson = require('prettyjson');
+
+var lemmerEng = new Lemmer('english');
+var wordnet = new natural.WordNet();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -25,19 +30,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-var wordnet = new natural.WordNet();
-wordnet.lookup('cat', function(results) {
-    results.forEach(function(result) {
-        console.log('------------------------------------');
-        console.log(result.synsetOffset);
-        console.log(result.pos);
-        console.log(result.lemma);
-        console.log(result.synonyms);
-        console.log(result.pos);
-        console.log(result.gloss);
-    });
-});
 
 app.get('/', function(req, res){
     res.render('main');
@@ -166,29 +158,76 @@ app.get('/predict/:text', function(req, res){
     });
 });
 
-function extractVerbs(posTagged){
+function wnlookup(word, callback){
+    wordnet.lookup(word, callback(results));
+}
+
+function lemmatize(word){
+    return lemmerEng.lemmatize(word);
+}
+
+app.get('/wordnetFind/:text', function(req,res){
+    wnlookup(req.params.text, function(results){
+        res.json(results);
+    });
+});
+
+app.get('/lemmatize/:text', function(req,res){
+    res.json(lemmatize(req.params.text));
+});
+
+function isVerb(tagged){
+    return (tagged[1][0]== "V");
+}
+
+function isNoun(tagged){
+    return ((tagged[1][0]== "N") && (tagged[1] !== "NNP"));
+}
+
+function extractRelevant(posTagged){
     return(posTagged.filter(function(tagged){
-        if(tagged[1][0]== "V") return true;
+        if(isNoun(tagged) || isVerb(tagged)){return true};
+        return false;
     }));
 }
 
-function extractNouns(posTagged){
-
+function lemmatizeWords(posTagged){
+    return(posTagged.map(function(tagged){
+        var possible =  lemmatize(tagged[0]);
+        options = possible.filter(function(option){
+            if((isVerb(tagged) && option['partOfSpeech'] == "VERB")
+                || (isNoun(tagged) && option['partOfSpeech'] == "NOUN")){
+                return true;
+            }
+            return false;
+        });
+        return options;
+    }).filter(function(lemmatized){
+        return(lemmatized.length !== 0);
+    }).map(function(lemmatized){
+        return lemmatized[0]['text'].toLowerCase();
+    }));
 }
-
-
 
 function posTag(sentence){
     var words = new pos.Lexer().lex(sentence);
     var taggedWords = new pos.Tagger().tag(words);
-    return taggedWords;
+    return taggedWords
 }
 
-
-
+function extract(sentence){
+    var taggedWords = posTag(sentence);
+    var relevantTagged = extractRelevant(taggedWords);
+    var lemmatizedTagged = lemmatizeWords(relevantTagged);
+    return lemmatizedTagged;
+}
 
 app.get('/postag/:text', function(req, res){
-    res.json(extractVerbs(posTag(req.params.text)));
+    res.json(posTag(req.params.text));
+});
+
+app.get('/extract/:text', function(req, res){
+    res.json(extract(req.params.text));
 });
 
 /// catch 404 and forward to error handler
