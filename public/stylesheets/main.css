@@ -12,18 +12,21 @@ h1,h2,h3,li,p{
 #doc {
 	margin: 12px auto;
 	background: #fff;
-	min-height: 910px;
-	padding: 55px 50px;
+	min-height: 50px;
+	max-height: 450px;
+	padding: 35px 35px;
 	outline: none;
+	overflow:scroll;
 	box-shadow: .1px .1px 10px 0px #555;
 }
 
 #sidebar{
 	background: #FCFCFC;
-	margin: 35px auto;
-	padding: 20px;
-	min-height: 350px;
+	padding: 15px 15px;
+	min-height: 100px;
 	word-wrap: break-word;
+	background: #333;
+	color: white;
 }
 
 #sidebar-title{
