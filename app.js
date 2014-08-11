@@ -11,6 +11,9 @@ var request = require('request');
 var async = require('async');
 var _ = require('underscore');
 var fs = require('fs');
+var pos = require('pos');
+var natural = require('natural');
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -22,6 +25,19 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+var wordnet = new natural.WordNet();
+wordnet.lookup('cat', function(results) {
+    results.forEach(function(result) {
+        console.log('------------------------------------');
+        console.log(result.synsetOffset);
+        console.log(result.pos);
+        console.log(result.lemma);
+        console.log(result.synonyms);
+        console.log(result.pos);
+        console.log(result.gloss);
+    });
+});
 
 app.get('/', function(req, res){
     res.render('main');
@@ -148,6 +164,31 @@ app.get('/predict/:text', function(req, res){
             });
         } else { res.send(null);}
     });
+});
+
+function extractVerbs(posTagged){
+    return(posTagged.filter(function(tagged){
+        if(tagged[1][0]== "V") return true;
+    }));
+}
+
+function extractNouns(posTagged){
+
+}
+
+
+
+function posTag(sentence){
+    var words = new pos.Lexer().lex(sentence);
+    var taggedWords = new pos.Tagger().tag(words);
+    return taggedWords;
+}
+
+
+
+
+app.get('/postag/:text', function(req, res){
+    res.json(extractVerbs(posTag(req.params.text)));
 });
 
 /// catch 404 and forward to error handler
