@@ -21,7 +21,9 @@
     "prettyjson": "^1.0.0",
     "request": "^2.40.0",
     "static-favicon": "^1.0.2",
-    "underscore": "^1.6.0"
+    "underscore": "^1.6.0",
+    "wordnet-magic": "git+ssh://git@github.com:Planeshifter/node-wordnet-magic.git",
+    "wordpos": "git+ssh://git@github.com:moos/wordpos.git"
   },
   "description": "Hello",
   "main": "app.js",
