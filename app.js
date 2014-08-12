@@ -30,6 +30,28 @@ app.get('/', function(req, res){
 	res.render('main');
 });
 
+app.get('/predict/:text', function(req,res){
+	var totalD = [];
+	var text = req.params.text;
+	var extracted = nlp.extractLemmatized(text);
+	for(type in extracted){
+		var modtype = null;
+		if(type[0] === "V"){
+			modtype = 'v';
+		} else if (type[0] === "N"){
+			modtype = 'o';
+		} else if (type[0] === "A"){
+			modtype = 'adj';
+		}
+		extracted[type].forEach(function(value){
+			totalD.push(pred.getRel(value, modtype));
+		});
+	}
+	res.send(totalD);
+});
+
+//
+
 //predict specific routes
 app.get('/pred/getRel/:word/:type', function(req,res){
 	res.send(pred.getRel(req.params.word, req.params.type));
@@ -66,7 +88,7 @@ app.get('/nlp/postag/:text', function(req, res){
 	res.json(nlp.posTag(req.params.text));
 });
 
-app.get('/nlp/extractvn/:text', function(req, res){
+app.get('/nlp/extractvna/:text', function(req, res){
 	res.json(nlp.extractLemmatized(req.params.text));
 });
 
