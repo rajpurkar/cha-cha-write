@@ -7,16 +7,13 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var app = express();
-var prettyjson = require('prettyjson');
-var async = require('async');
 
 //app-dependant local dependencies
-var py = require('./pyServBridge.js');
+var py = require('./pybridge.js');
 var wn = require('./wordnet.js');
 var nlp = require('./nlp.js');
+var pred = require('./predict.js');
 
-//json file
-var graph = require("./relations.json");
 
 //app setup
 app.set('views', path.join(__dirname, 'views'));
@@ -33,8 +30,13 @@ app.get('/', function(req, res){
 	res.render('main');
 });
 
+//predict specific routes
+app.get('/pred/getRel/:word/:type', function(req,res){
+	res.send(pred.getRel(req.params.word, req.params.type));
+});
 
 //py specific routes
+
 app.get('/py/path/:v1/:o1/:v2/:o2', function(req, res){
 	py.getPath(req.params.v1, req.params.o1, req.params.v2, req.params.o2, function(obj){
 		res.send(obj);
@@ -54,6 +56,8 @@ app.get('/py/predict/:text', function(req, res){
 	});
 });
 
+//nlp specific routes
+
 app.get('/nlp/lemmatize/:word', function(req,res){
 	res.json(nlp.lemmatize(req.params.word));
 });
@@ -65,6 +69,8 @@ app.get('/nlp/postag/:text', function(req, res){
 app.get('/nlp/extractvn/:text', function(req, res){
 	res.json(nlp.extractLemmatized(req.params.text));
 });
+
+//wn specific routes
 
 app.get('/wn/random/:count', function(req, res){
 	wn.getRandom(req.params.count, function(data){
