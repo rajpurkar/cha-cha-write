@@ -31,6 +31,21 @@ function convertValToDict(){
 	}	
 }
 
+function sortByOccurence(){
+	for(var key in graph){
+		for(var type in graph[key]){
+			var unsorted = graph[key][type];
+			graph[key][type] = Object.keys(unsorted).sort(function(curKey,nextKey) {
+	        	return unsorted[curKey] < unsorted[nextKey];
+	    	});
+		}
+		 
+	}
+}
+
 makeBirectional();
 convertValToDict();
+sortByOccurence();
 
+console.log(getRel("walk", "v"));
+//console.log(graph);
