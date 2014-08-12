@@ -27,6 +27,7 @@
 			$("#soFar-text").append("<h3 class='soFar'>" + String(data[i]).split(",").join(" ") + "</h3>");
 		};
 	}
+
 	function processInput(){
 		var presentText = $("#doc").text().replace(",", ".");
 		$.get( "/predict/" + presentText, function(data){
@@ -43,10 +44,21 @@
 		});
 	}
 
+
+	function getRandom(){
+		$.get('/randomv/10', function(data){
+			var re = new RegExp(',', 'g');
+			data = data.toString().replace(re, ' ');
+			console.log(data);
+			$("#next-text-new").text(data);
+		});
+	}
+
 	$("#doc").keypress(function(e) {
+		console.log(e.keyCode);
 		saveState();
-		if(e.keyCode === 46){
-			processInput();
+		if(e.keyCode === 46 || e.keyCode === 44){
+			getRandom();
 		}
 	});
 	
@@ -62,7 +74,9 @@
 	}
 
 	if(resumeState()){
-		processInput();
+		getRandom();
+		//window.setInterval(getRandom, 15000);
+		//processInput();
     }
 })($);
 
