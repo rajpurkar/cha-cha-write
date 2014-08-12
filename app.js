@@ -15,9 +15,23 @@ var pos = require('pos');
 var natural = require('natural');
 var Lemmer = require('node-lemmer').Lemmer;
 var prettyjson = require('prettyjson');
-
+var WordPOS = require('wordpos');
+var wordpos = new WordPOS();
+var wn = require('wordnet-magic');
 var lemmerEng = new Lemmer('english');
 var wordnet = new natural.WordNet();
+wn.registerDatabase('/Users/Phoenix/Documents/CURIS/cha-cha-write/node_modules/wordnet-magic/data/sqlite-31.db');
+var graph = require("./relations.json");
+
+
+//console.log(graph['helicopter n']);
+/*
+wn.fetchSynset("bacteria.n.1", function(err, synset){
+    synset.getHypernymTree(function(err, data){
+        console.log(data);
+    });
+});
+*/
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -42,19 +56,19 @@ app.get('/test', function (req, res){
 app.get('/path/:v1/:o1/:v2/:o2', function(req, res){
     var obj = {}
     request('http://localhost:5000/find_paths/' + req.params.v1 + '/' + req.params.o1 + '/' + req.params.v2 + '/'  + req.params.o2 + '/10' , function (error, response, body) {
-       body = JSON.parse(body);
-        for(var i = 0; i < body.length; i++){
-            var path = body[i];
-            for (var j =0 ; j < path.length; j++){
-                var item = path[j];
-                item = item.verb + " " + item.object;
-                if(!(item in obj))
-                    obj[item] = 0;
-                obj[item] += 1;
-            }
+     body = JSON.parse(body);
+     for(var i = 0; i < body.length; i++){
+        var path = body[i];
+        for (var j =0 ; j < path.length; j++){
+            var item = path[j];
+            item = item.verb + " " + item.object;
+            if(!(item in obj))
+                obj[item] = 0;
+            obj[item] += 1;
         }
-        sorted_obj = _.sortBy(_.filter(_.map(obj, function(v,k){return [v,k] }), function(x){ return x[0] > 1 }), function(x) { return -1 * x[0] })
-        res.send(sorted_obj);
+    }
+    sorted_obj = _.sortBy(_.filter(_.map(obj, function(v,k){return [v,k] }), function(x){ return x[0] > 1 }), function(x) { return -1 * x[0] })
+    res.send(sorted_obj);
         //res.render('path', {paths: JSON.parse(body)});
     });
 });
@@ -131,42 +145,176 @@ app.get('/predict/:text', function(req, res){
     request("http://localhost:5000/convert/" + req.params.text, function(error, response, body){
         if(error){ res.send(null)}
         //if(body)
-        body = JSON.parse(body);
-        if(body.length > 0){
-            async.map(body, downloadEdge, function(err, results){
-                total = {}
-                for(var i = 0; i < results.length; i++){
-                    var d = results[i];
-                    for(var item in d){
-                        if(!(item in total)){
-                            total[item] = 0;
-                        }
-                        total[item] += d[item]*(i+1)*0.1;
+    body = JSON.parse(body);
+    if(body.length > 0){
+        async.map(body, downloadEdge, function(err, results){
+            total = {}
+            for(var i = 0; i < results.length; i++){
+                var d = results[i];
+                for(var item in d){
+                    if(!(item in total)){
+                        total[item] = 0;
                     }
+                    total[item] += d[item]*(i+1)*0.1;
                 }
-                toIgnore = {}
-                for(var i = 0; i < body.length; i++){
-                    toIgnore[body[i][0] + " " + body[i][1]] = "yes";
-                }
-                sortedTotal = sortObject(total)
-                sortedTotal = sortedTotal.filter(function(element){
-                    return !(element.action in toIgnore);
-                });
-                res.send({soFar: body, predictions:sortedTotal});
+            }
+            toIgnore = {}
+            for(var i = 0; i < body.length; i++){
+                toIgnore[body[i][0] + " " + body[i][1]] = "yes";
+            }
+            sortedTotal = sortObject(total)
+            sortedTotal = sortedTotal.filter(function(element){
+                return !(element.action in toIgnore);
             });
-        } else { res.send(null);}
-    });
+            res.send({soFar: body, predictions:sortedTotal});
+        });
+    } else { res.send(null);}
+});
 });
 
 function wnlookup(word, callback){
-    wordnet.lookup(word, callback(results));
+    wordnet.lookup(word, function(results){
+        callback(null, results);
+    });
 }
 
 function lemmatize(word){
     return lemmerEng.lemmatize(word);
 }
 
-app.get('/wordnetFind/:text', function(req,res){
+function isVerb(tagged){
+    return (tagged[1][0]=== "V");
+}
+
+function isNoun(tagged){
+    return ((tagged[1][0]=== "N") && (tagged[1] !== "NNP"));
+}
+
+function isAdj(tagged){
+    return (tagged[1][0]=== "J");
+}
+
+function extractRelevant(posTagged){
+    return(posTagged.filter(function(tagged){
+        if(isNoun(tagged) || isVerb(tagged) || isAdj(tagged)){return true};
+        return false;
+    }));
+}
+
+function lemmatizeWords(posTagged){
+    all = {};
+    posTagged.forEach(function(tagged){
+        var possible =  lemmatize(tagged[0]);
+        var options = possible.filter(function(option){
+            if((isVerb(tagged) && option['partOfSpeech'] === "VERB")
+                || (isNoun(tagged) && option['partOfSpeech'] === "NOUN")
+                || (isAdj(tagged) && option['partOfSpeech'] === "ADJ_FULL")){
+                return true;
+        }
+        return false;
+    });
+        if(options.length > 0){
+            if(!(options[0]['partOfSpeech'] in all)){ all[options[0]['partOfSpeech']] = [];}
+            all[options[0]['partOfSpeech']].push(options[0]['text'].toLowerCase());
+        }
+    });
+    return all;
+}
+
+function posTag(sentence){
+    var words = new pos.Lexer().lex(sentence);
+    var taggedWords = new pos.Tagger().tag(words);
+    return taggedWords
+}
+
+function wnlookupNoun(word, callback){
+   wordpos.lookupNoun(word, function(results){
+    callback(null, results);
+});
+}
+
+function wnlookupVerb(word, callback){
+   wordpos.lookupVerb(word, function(results){
+    callback(null, results);
+});
+}
+
+function wordNetWords(lemmatizedWords, outercallback){
+    async.parallel({
+        verb: function(callback){
+            async.map(lemmatizedWords["VERB"], wnlookupVerb, function(err, results){
+             callback(null, results);
+         });
+        },
+        noun: function(callback){
+            async.map(lemmatizedWords["NOUN"], wnlookupNoun, function(err, results){
+             callback(null, results);
+         });
+        },
+    }, function (err, results){
+        console.log(results);
+        outercallback(results);
+    })
+}
+
+function extractLemmatized(sentence){
+    var taggedWords = posTag(sentence);
+    var relevantTagged = extractRelevant(taggedWords);
+    var lemmatizedTagged = lemmatizeWords(relevantTagged);
+    return lemmatizedTagged;
+}
+
+function extractFull(sentence, callback){
+    var filteredWords = extractLemmatized(sentence);
+    console.log(filteredWords);
+    wordNetWords(filteredWords, function(wordNetTagged){
+        callback(wordNetTagged);
+    });
+}
+
+function extractFullWordPos(sentence, callback){
+    wordpos.getPOS(sentence, callback);
+}
+
+app.get('/hello', function(req,res){
+    var kiss;
+    wn.morphy("killers","n",function(err, data){
+        if(err){res.send(err);}
+        res.send(data);
+        //kiss = new wn.Word(data[0]['lemma'], data[0]['part_of_speech']);
+        /*kiss.getSynsets(function(err, data){
+            data[0].getHypernyms(function(err, data){
+                res.send(data);
+            });
+        });
+        */
+        /*
+        if(err){res.send(err);}
+        wn.fetchSynset("cloud.n.1").then(function(synset){
+            //res.send(synset);
+            synset.getHypernymsTree(function(err, data){
+                if(err){res.send(err);}
+                res.send(data);
+            });
+        });
+        */
+        /*
+        kiss = new wn.Word(data[0]['lemma'], data[0]['part_of_speech']);
+        kiss.getSynsets(function(err, data){
+            if(err){res.send(err);}
+            else {res.send(data);}
+        });
+*/
+    });
+});
+
+app.get('/wordnetadv/:text', function(req,res){
+    wnlookupNoun(req.params.text, function (err, results){
+        res.send(results);
+    });
+});
+
+app.get('/wordnet/:text', function(req,res){
     wnlookup(req.params.text, function(results){
         res.json(results);
     });
@@ -176,58 +324,45 @@ app.get('/lemmatize/:text', function(req,res){
     res.json(lemmatize(req.params.text));
 });
 
-function isVerb(tagged){
-    return (tagged[1][0]== "V");
-}
-
-function isNoun(tagged){
-    return ((tagged[1][0]== "N") && (tagged[1] !== "NNP"));
-}
-
-function extractRelevant(posTagged){
-    return(posTagged.filter(function(tagged){
-        if(isNoun(tagged) || isVerb(tagged)){return true};
-        return false;
-    }));
-}
-
-function lemmatizeWords(posTagged){
-    return(posTagged.map(function(tagged){
-        var possible =  lemmatize(tagged[0]);
-        options = possible.filter(function(option){
-            if((isVerb(tagged) && option['partOfSpeech'] == "VERB")
-                || (isNoun(tagged) && option['partOfSpeech'] == "NOUN")){
-                return true;
-            }
-            return false;
-        });
-        return options;
-    }).filter(function(lemmatized){
-        return(lemmatized.length !== 0);
-    }).map(function(lemmatized){
-        return lemmatized[0]['text'].toLowerCase();
-    }));
-}
-
-function posTag(sentence){
-    var words = new pos.Lexer().lex(sentence);
-    var taggedWords = new pos.Tagger().tag(words);
-    return taggedWords
-}
-
-function extract(sentence){
-    var taggedWords = posTag(sentence);
-    var relevantTagged = extractRelevant(taggedWords);
-    var lemmatizedTagged = lemmatizeWords(relevantTagged);
-    return lemmatizedTagged;
-}
 
 app.get('/postag/:text', function(req, res){
     res.json(posTag(req.params.text));
 });
 
+app.get('/extractLem/:text', function(req, res){
+    res.json(extractLemmatized(req.params.text));
+});
+
 app.get('/extract/:text', function(req, res){
-    res.json(extract(req.params.text));
+    extractFull(req.params.text, function(results){
+        res.json(results);
+    });
+});
+
+app.get('/extractF/:text', function(req, res){
+    extractFullWordPos(req.params.text, function(results){
+        res.json(results);
+    });
+});
+
+app.get('/randoma/:limit', function(req, res){
+
+});
+
+app.get('/randomn/:limit', function(req, res){
+
+});
+
+app.get('/randomv/:limit', function(req, res){
+    wordpos.randVerb({starstWith: '', count: req.params.limit}, function(results){
+        res.json(results);
+    });
+});
+
+app.get('/random/:limit', function(req, res){
+    wordpos.rand({starstWith: '', count: req.params.limit}, function(results){
+        res.json(results);
+    });
 });
 
 /// catch 404 and forward to error handler
