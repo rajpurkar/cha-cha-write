@@ -23,10 +23,11 @@ h1,h2,h3,li,p{
 #sidebar{
 	background: #FCFCFC;
 	padding: 15px 15px;
-	min-height: 100px;
 	word-wrap: break-word;
 	background: #333;
 	color: white;
+	text-align:justify;
+	text-justify:inter-word;
 }
 
 #sidebar-title{
