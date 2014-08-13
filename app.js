@@ -31,15 +31,58 @@ app.get('/', function(req, res){
 });
 
 
-app.get('/predict/:text', function(req,res){
-	var totalD = [];
-	var text = req.params.text;
-	var extracts = nlp.extractLemmatized(text);
-	extracts.forEach(function(extract){
-		totalD.push({"input": extract.input, "output" : pred.getRel(extract.input, pred.getModType(extract.tag))});
-	});
-	res.send(totalD);
-});
+function convertToD3(g){
+	function contains(a, obj) {
+		for (var i = 0; i < a.length; i++) {
+			if (a[i]['name'] == obj['name']) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	var out = {"nodes": [], "links": []};
+	var count = 0;
+	var lastSource = -1;
+	for(var j = 0; j < g.length; j++){
+		var first = g[j];
+		out.nodes.push({"name":first.input, "group":"i"});
+		if(lastSource !== -1){ out.links.push({"source": lastSource, "target":out.nodes.length - 1, "weight":1});}
+		count++;
+		var source = out.nodes.length - 1;
+		lastSource = source;
+		for(var type in first.output){
+			var innerCount = 0;
+			var vals = first.output[type];
+			var max = vals.length;
+			if(vals.length > 5){ max = 5;}
+			for(var i = 0; i< max; i++){
+				innerCount++;
+				if(innerCount > 10){ break;}
+				var val = vals[i];
+				var toInsert = count;
+				var inArray = contains(out.nodes, {name:val[0],group:type});
+				if(inArray !== -1){
+					toInsert = inArray;
+				}else{
+					out.nodes.push({"name": val[0], "group": type});
+					count++;
+				}
+				out.links.push({"source": source, "target":toInsert, "value":val[1]});
+			}
+		}
+	};
+	return out;
+}
+
+		app.get('/predict/:text', function(req,res){
+			var totalD = [];
+			var text = req.params.text;
+			var extracts = nlp.extractLemmatized(text);
+			extracts.forEach(function(extract){
+				totalD.push({"input": extract.input, "output" : pred.getRel(extract.input, pred.getModType(extract.tag))});
+			});
+			res.send(convertToD3(totalD));
+		});
 
 //predict specific routes
 app.get('/pred/getRel/:word/:type', function(req,res){
