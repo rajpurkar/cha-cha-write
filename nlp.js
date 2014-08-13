@@ -28,7 +28,7 @@ function extractRelevant(posTagged){
 }
 
 function lemmatizeWords(posTagged){
-	all = {};
+	all = [];
 	posTagged.forEach(function(tagged){
 		var possible =  lemmatize(tagged[0]);
 		var options = possible.filter(function(option){
@@ -40,8 +40,7 @@ function lemmatizeWords(posTagged){
 			return false;
 		});
 		if(options.length > 0){
-			if(!(options[0]['partOfSpeech'] in all)){ all[options[0]['partOfSpeech']] = [];}
-			all[options[0]['partOfSpeech']].push(options[0]['text'].toLowerCase());
+			all.push({'input': options[0]['text'].toLowerCase(), 'tag': options[0]['partOfSpeech']});
 		}
 	});
 	return all;

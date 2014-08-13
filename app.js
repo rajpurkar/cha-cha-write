@@ -30,27 +30,16 @@ app.get('/', function(req, res){
 	res.render('main');
 });
 
+
 app.get('/predict/:text', function(req,res){
 	var totalD = [];
 	var text = req.params.text;
-	var extracted = nlp.extractLemmatized(text);
-	for(type in extracted){
-		var modtype = null;
-		if(type[0] === "V"){
-			modtype = 'v';
-		} else if (type[0] === "N"){
-			modtype = 'o';
-		} else if (type[0] === "A"){
-			modtype = 'adj';
-		}
-		extracted[type].forEach(function(value){
-			totalD.push(pred.getRel(value, modtype));
-		});
-	}
+	var extracts = nlp.extractLemmatized(text);
+	extracts.forEach(function(extract){
+		totalD.push({"input": extract.input, "output" : pred.getRel(extract.input, pred.getModType(extract.tag))});
+	});
 	res.send(totalD);
 });
-
-//
 
 //predict specific routes
 app.get('/pred/getRel/:word/:type', function(req,res){
