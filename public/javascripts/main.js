@@ -318,6 +318,7 @@
 		if(keyCount%50 == 0){
 			graph.removeAllLinks();
 			graph.removeAllNodes();
+			processInput();
 			keyCount++;
 		}
 	});
@@ -347,4 +348,14 @@
 		getIdea();
 	}
 
+	$(".menuoption").click(function(){
+		if($(this).find("span.glyphicon-refresh").length > 0){
+			graph.removeAllLinks();
+			graph.removeAllNodes();
+			processInput();
+		}else if($(this).find("span.glyphicon-flash").length > 0){
+			$("#sidebar").fadeIn(100).delay(3000).fadeOut(800);
+		}
+	});
+	$("#sidebar").hide();
 })($, d3, window, localStorage);
