@@ -1,6 +1,7 @@
 var fs = require('fs');
 var _ = require('underscore');
 var async = require('async');
+var assert = require('assert');
 
 function sortGraph(graph){
 	for(var key in graph){
@@ -39,8 +40,11 @@ async.parallel([function(callback){
 		function mapFrequencies(){
 			for(var key in graph){
 				for(var type in graph[key]){
-					var obj = graph[key][type];
-					graph[key][type] = _.map(obj, function(v,k){return [k,v] });
+					var arr = [];
+					for(var word in graph[key][type]){
+						arr.push([word, graph[key][type][word]]);
+					}
+					graph[key][type] = arr;
 				}
 			}
 		}
@@ -59,6 +63,7 @@ async.parallel([function(callback){
 		lines.forEach(function(line){
 			var comps = line.split('\t');
 			if(!(comps[0] in graph)){ graph[comps[0]] = []}
+			assert.ok(comps[1]);
 			graph[comps[0]].push(comps[1], comps[2]);
 		});
 		callback(null, graph);
