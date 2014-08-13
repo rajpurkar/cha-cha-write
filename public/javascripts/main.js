@@ -25,15 +25,24 @@
 			var i = 0;
 			var n = findNode(id);
 			while (i < links.length) {
-				if ((links[i]['source'] == n))
+				if ((links[i].source == n))
 				{
 					links.splice(i,1);
-					var candidate = links[i]['target'];
+					var candidate = links[i].target;
 					if(candidate.id.split(' ')[1] !== "i"){
 						nodes.splice(candidate.index, 1);
 					}
 				}
-				else i++;
+				else if ((links[i].target == n))
+				{
+					links.splice(i,1);
+					var candidate = links[i].source;
+					if(candidate.id.split(' ')[1] !== "i"){
+						nodes.splice(candidate.index, 1);
+					}
+				}else{ 
+					i++;
+				}
 			}
 			nodes.splice(findNodeIndex(id),1);
 			update();
@@ -57,7 +66,7 @@
 		};
 
 		this.removeAllNodes = function(){
-			nodes.splice(0,links.length);
+			nodes.splice(0,nodes.length);
 			update();
 		};
 
@@ -74,7 +83,7 @@
 
 		var findNode = function(id) {
 			for (var i in nodes) {
-				if (nodes[i]["id"] === id) return nodes[i];};
+				if (nodes[i].id === id) return nodes[i];};
 		};
 
 		var findNodeIndex = function(id) {
@@ -124,7 +133,7 @@
 		.append("g")
 		.attr("width", width)
 		.attr("height", height)
-		.attr("transform", "translate(" + 200 + "," + -50 + ")")
+		.attr("transform", "translate(" + 220 + "," + -50 + ")")
 		.call(zoom);
 
 		var rect = svg.append("rect")
@@ -138,10 +147,9 @@
 		var force = d3.layout.force()
 		.gravity(0.3)
 		.distance(60)
-		.charge(-2000)
-		.chargeDistance(300)
-		.friction(0.4)	
-		.theta(0.7)
+		.charge(-2500)
+		.chargeDistance(400)
+		.friction(0.3)
 		.size([width, height])
 
 
@@ -172,7 +180,6 @@
 
 			var nodeEnter = node.enter().append("g")
 			.attr("class", "node")
-			.call(force.drag);
 
 			nodeEnter.append("svg:circle")
 			.attr("r", 25)
@@ -193,7 +200,9 @@
 
 			node.exit().remove();
 			force.on("tick", function() {
-
+				var lastSI = getLastSource();
+				lastSI.x  = width/2;
+				lastSI.y = height/2;
 				node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y         + ")"; });
 
 				link.attr("x1", function(d) { return d.source.x; })
@@ -204,6 +213,9 @@
 
 			// Restart the force layout.
 			force.start();
+			//for (var i = 0; i < 5; ++i){
+			//	force.tick();
+			//} 
 		};
 
 		this.update = update;
@@ -214,13 +226,22 @@
 	}
 
 	var graph = new myGraph();
+	
+	function getIdea(){
+		$.get( "/suggest/" + $("#doc").text().replace(",", ".").split('.').splice(-3), function(data){
+			$('#sidebar-text').empty();
+			data.forEach(function(d){
+				$('#sidebar-text').append(d[0] + " ");
+			});
+		});
+	}
+		
 
 	function processInput(){
 		var presentText = $("#doc").text().replace(",", ".").split('.');
 		if($("#doc").text().length <= 1){
-			console.log(graph);
-			graph.removeAllNodes();
 			graph.removeAllLinks();
+			graph.removeAllNodes();
 		}
 		presentText = presentText.splice(-3);
 		
@@ -275,7 +296,7 @@
 		}
 	});
 
-		//localstorage functions
+	//localstorage functions
 
 	function supportsLocalStorage() {
 		return ('localStorage' in window) && window.localStorage !== null;
@@ -297,6 +318,7 @@
 
 	if(resumeState()){
 		processInput();
+		getIdea();
 	}
 
 })($, d3, window, localStorage);
