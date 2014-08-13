@@ -7,7 +7,7 @@ function sortGraph(graph){
 	for(var key in graph){
 		for(var type in graph[key]){
 			var obj = graph[key][type];
-			graph[key][type] = _.sortBy(obj, function(x) { return -1 * x[1] });
+			graph[key][type] = _.filter(_.sortBy(obj, function(x) { return -1 * x[1] }), function (x) { return  x[1] > 1});
 		}
 	}
 }
@@ -49,7 +49,7 @@ async.parallel([function(callback){
 			}
 		}
 
-		makeBirectional();
+		//makeBirectional();
 		convertValToDict();
 		mapFrequencies();
 		callback(null, graph);
