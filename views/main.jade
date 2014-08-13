@@ -7,19 +7,27 @@ html
 		meta(name='description', content='Predict the future')
 		meta(name='author', content='Pranav Rajpurkar')
 		meta(name='viewport', content='width=device-width initial-scale=1.0 user-scalable=yes')
-		//link(href='//fonts.googleapis.com/css?family=Open+Sans:100,200,300,400', rel='stylesheet', type='text/css')
+		link(href='//fonts.googleapis.com/css?family=Open+Sans:100,200,300,400', rel='stylesheet', type='text/css')
 		link(rel='stylesheet', type='text/css', href='/stylesheets/bootstrap.css', media='all')
+		link(rel='stylesheet', type='text/css', href='/stylesheets/drawing.css', media='all')
 		link(rel='stylesheet', type='text/css', href='/stylesheets/main.css', media='all')
 	body
 		section
-			.container
-				.row
-					.col-sm-5.col-sm-offset-4
-						#doc(contenteditable='true')
-							.clear      
-						#sidebar
-							#sidebar-text-new
-								#soFar-text-new
-								#next-text-new
+			.row
+				#menu.col-sm-2
+					.row.menuoption
+						button.btn.btn-default.btn-lg(type='button')
+							span.glyphicon.glyphicon-plus-sign
+					.row.menuoption
+						button.btn.btn-default.btn-lg(type='button')
+							span.glyphicon.glyphicon-floppy-save
+				#content-col.col-sm-4
+					#doc(contenteditable='true')
+						.clear
+					#sidebar
+						#sidebar-text
+				#d3div
 		script(src="/javascripts/jquery.js")
+		script(src="http://d3js.org/d3.v3.min.js")
+		script(src="/javascripts/drawing.js")
 		script(src="/javascripts/main.js")
