@@ -1,5 +1,5 @@
 (function($, d3, window, localStorage){
-
+	var nodes;
 	function myGraph() {
 
 		// Add and remove elements on the graph object
@@ -22,28 +22,24 @@
 		};
 
 		this.removePathNode = function (id) {
-			var i = 0;
 			var n = findNode(id);
-			while (i < links.length) {
-				if ((links[i].source == n))
-				{
+			links.forEach(function(link, index){
+				if (links[i].source == n){
 					links.splice(i,1);
 					var candidate = links[i].target;
 					if(candidate.id.split(' ')[1] !== "i"){
 						nodes.splice(candidate.index, 1);
 					}
-				}
-				else if ((links[i].target == n))
-				{
+				}else if(links[i].target == n){
 					links.splice(i,1);
 					var candidate = links[i].source;
 					if(candidate.id.split(' ')[1] !== "i"){
 						nodes.splice(candidate.index, 1);
 					}
-				}else{ 
+				}else{
 					i++;
 				}
-			}
+			});
 			nodes.splice(findNodeIndex(id),1);
 			update();
 		};
@@ -95,6 +91,15 @@
 			return -1;
 		};
 
+		this.findNodeIndexSoft = function(id) {
+			for (var i=0;i<nodes.length;i++) {
+				if (nodes[i].id.split(' ')[0]==id.split(' ')[0]){
+					return i;
+				}
+			};
+			return -1;
+		};
+
 		this.findNodeIndex = findNodeIndex;
 
 		var width = parseInt(d3.select('#d3div').style('width'), 10);
@@ -133,7 +138,7 @@
 		.append("g")
 		.attr("width", width)
 		.attr("height", height)
-		.attr("transform", "translate(" + 220 + "," + -50 + ")")
+		.attr("transform", "translate(" + 250 + "," + -50 + ")")
 		.call(zoom);
 
 		var rect = svg.append("rect")
@@ -145,19 +150,27 @@
 		var container = svg.append("g");
 
 		var force = d3.layout.force()
-		.gravity(0.3)
+		.gravity(0.2)
 		.distance(60)
-		.charge(-2500)
-		.chargeDistance(400)
-		.friction(0.3)
+		.charge(-3000)
+		//.chargeDistance(400)
+		.friction(0.2)
 		.size([width, height])
 
 
-		var nodes = force.nodes(),
-			links = force.links();
+		nodes = force.nodes();
+		var links = force.links();
 
 		this.nodes = nodes;
-
+		
+		function getLastSource(){
+			for(var i = nodes.length-1; i >=0 ; i--){
+				if(nodes[i].id.split(' ')[1] === "i"){
+					return i;
+				}
+			}
+			return -1;
+		};
 		var update = function () {
 			var link = container.selectAll("line")
 			.data(links, function(d) {
@@ -201,8 +214,11 @@
 			node.exit().remove();
 			force.on("tick", function() {
 				var lastSI = getLastSource();
-				lastSI.x  = width/2;
-				lastSI.y = height/2;
+				//alert(lastSI);
+				if(lastSI !== -1){
+					nodes[lastSI].x  = width/2;
+					nodes[lastSI].y = height/2;
+				}
 				node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y         + ")"; });
 
 				link.attr("x1", function(d) { return d.source.x; })
@@ -243,19 +259,19 @@
 			graph.removeAllLinks();
 			graph.removeAllNodes();
 		}
-		presentText = presentText.splice(-3);
+		presentText = presentText.splice(-5);
 		
 		$.get( "/predict/" + presentText, function(data){
 			graph.nodes.forEach(function(node){
 				var spl = node.id.split(' ');
 				if(spl[1] === "i"){
 					var toRemove = true;
-					data.forEach(function(extraction){
-						if(extraction.input === spl[0]){
+					for(var i = 0; i < data.length; i++){
+						if(data[i].input === spl[0]){
 							toRemove = false;
-							return;
-						}
-					});
+							break;
+						}	
+					}
 					if(toRemove){
 						graph.removePathNode(node.id);
 					}
@@ -266,6 +282,10 @@
 				var extraction = data[j];
 				var input = extraction.input;
 				if(graph.findNodeIndex(input + " " + "i") !== -1) continue;
+				var softIndex = graph.findNodeIndexSoft(input + " " + "i");
+				if(softIndex !== -1){
+					graph.removeNode(nodes[softIndex].id);
+				}
 				graph.addNode(input + " " + "i");
 				if(j >0){
 					graph.addLink(data[j-1].input + " " + "i", input + " " + "i", "1");
@@ -293,6 +313,9 @@
 		saveState();
 		if(e.keyCode === 46 || e.keyCode === 44 || e.keyCode ==32){
 			processInput();	
+		}
+		if(e.keyCode === 46){
+			getIdea();
 		}
 	});
 
