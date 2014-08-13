@@ -63,8 +63,7 @@ async.parallel([function(callback){
 		lines.forEach(function(line){
 			var comps = line.split('\t');
 			if(!(comps[0] in graph)){ graph[comps[0]] = []}
-			assert.ok(comps[1]);
-			graph[comps[0]].push(comps[1], comps[2]);
+			graph[comps[0]].push([comps[1], parseInt(comps[2], 10)]);
 		});
 		callback(null, graph);
 	});
@@ -75,7 +74,7 @@ async.parallel([function(callback){
 		modkey = key + ' o'
 		var valuesD = {'v': [], 'adj':[], "o":[]};
 		if(!(modkey in voagraph)){voagraph[modkey] = valuesD;}
-		voagraph[modkey]['o'].push(oograph[key]);
+		voagraph[modkey]['o'] = oograph[key];
 	}
 	sortGraph(voagraph);
 	fs.writeFile('./files/graph.json', JSON.stringify(voagraph), function (err) {
