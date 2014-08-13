@@ -7,6 +7,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var app = express();
+var _ = require('underscore');
 
 //app-dependant local dependencies
 var py = require('./pybridge.js');
@@ -30,6 +31,32 @@ app.get('/', function(req, res){
 	res.render('main');
 });
 
+function manipulate(data){
+	var pred = {};
+	data.forEach(function(d){
+		for(var type in d.output){
+			d.output[type].forEach(function(pair, index){
+				if(!(pair[0] in pred)){
+					pred[pair[0]] = {count: 0, freq: 0};
+				}
+					pred[pair[0]].count += 1;
+					pred[pair[0]].freq += pair[1];
+			});
+		}
+	});
+	pred = _.sortBy(_.map(pred, function(k, v){ return [v, k.count, k.freq];}), function(x){ return -(x[1]*10 + x[2])});
+	return pred.splice(0,10);
+}
+
+app.get('/suggest/:text', function(req,res){
+	var totalD = [];
+	var text = req.params.text;
+	var extracts = nlp.extractLemmatized(text);
+	extracts.forEach(function(extract){
+		totalD.push({"input": extract.input, "output" : pred.getRel(extract.input, pred.getModType(extract.tag))});
+	});
+	res.send(manipulate(totalD));
+});
 
 app.get('/predict/:text', function(req,res){
 	var totalD = [];
