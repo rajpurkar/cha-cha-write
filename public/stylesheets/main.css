@@ -3,6 +3,7 @@ body {
 	font-family: "Open Sans", sans-serif;
 	font-size: 16px;
 	font-weight: 300;
+	min-height: 100%;
 }
 
 h1,h2,h3,li,p{
@@ -12,12 +13,31 @@ h1,h2,h3,li,p{
 #doc {
 	margin: 12px auto;
 	background: #fff;
-	min-height: 50px;
-	max-height: 450px;
+	height: 600px;
 	padding: 35px 35px;
 	outline: none;
 	overflow:scroll;
 	box-shadow: .1px .1px 10px 0px #555;
+	z-index: 3;
+	border-top: 3px solid #bbb;
+}
+
+#content-col{
+	z-index: 3;
+}
+
+.glyphicon{
+	font-size: 60px;
+}
+
+.menuoption{
+	padding: 30px 0px 0px 0px;
+}
+
+#menu{
+	z-index: 3;
+	margin-left: 20px;
+	padding: 20px 0px;
 }
 
 #sidebar{
@@ -30,16 +50,15 @@ h1,h2,h3,li,p{
 	text-justify:inter-word;
 }
 
-#sidebar-title{
-	border-bottom: 2px solid #ddd;
+#d3div{
+	height: 100%;
+	width: 100%;
+	z-index: 1;
+	position: fixed;
 }
 
-.soFar{
-	font-weight: 200;
-	color: #3bb;
+/*
+div{
+	border: 1px solid #333;
 }
-
-.next{
-	font-weight: 200;
-	color: #F78658;
-}
+*/
