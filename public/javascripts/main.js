@@ -24,20 +24,18 @@
 		this.removePathNode = function (id) {
 			var n = findNode(id);
 			links.forEach(function(link, index){
-				if (links[i].source == n){
-					links.splice(i,1);
-					var candidate = links[i].target;
+				if (links[index].source == n){
+					links.splice(index,1);
+					var candidate = links[index].target;
 					if(candidate.id.split(' ')[1] !== "i"){
 						nodes.splice(candidate.index, 1);
 					}
-				}else if(links[i].target == n){
-					links.splice(i,1);
-					var candidate = links[i].source;
+				}else if(links[index].target == n){
+					links.splice(index,1);
+					var candidate = links[index].source;
 					if(candidate.id.split(' ')[1] !== "i"){
 						nodes.splice(candidate.index, 1);
 					}
-				}else{
-					i++;
 				}
 			});
 			nodes.splice(findNodeIndex(id),1);
@@ -308,7 +306,7 @@
 			};
 		});
 	}
-
+	var keyCount = 0;
 	$("#doc").keypress(function(e) {
 		saveState();
 		if(e.keyCode === 46 || e.keyCode === 44 || e.keyCode ==32){
@@ -316,6 +314,11 @@
 		}
 		if(e.keyCode === 46){
 			getIdea();
+		}
+		if(keyCount%50 == 0){
+			graph.removeAllLinks();
+			graph.removeAllNodes();
+			keyCount++;
 		}
 	});
 
