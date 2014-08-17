@@ -11,8 +11,8 @@ var app = express();
 var _ = require('underscore');
 
 //app-dependant local dependencies
-var pred = require('./routes/predict.js');
-var nlp = require('./routes/nlp.js');
+var pred = require('./process/predict.js');
+var nlp = require('./process/nlp.js');
 
 //app setup
 app.set('views', path.join(__dirname, 'views'));
@@ -61,9 +61,9 @@ app.get('/pred/getRel/:word/:type', function(req,res){
 	res.send(pred.getRel(req.params.word, req.params.type));
 });
 
-if (app.get('env') === 'development') {
-	var py = require('./routes/pybridge.js');
-	var wn = require('./routes/wordnet.js');
+function initDevelopment(){
+	var py = require('./process/pybridge.js');
+	var wn = require('./process/wordnet.js');
 	
 	//py specific routes
 
@@ -107,6 +107,10 @@ if (app.get('env') === 'development') {
 			res.json(data)
 		});
 	});
+}
+
+if (app.get('env') === 'development') {
+	initDevelopment();
 }
 
 /// catch 404 and forward to error handler
