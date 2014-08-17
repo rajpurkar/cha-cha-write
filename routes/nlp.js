@@ -1,6 +1,6 @@
 var pos = require('pos');
 var natural = require('natural');
-var Lemmer = require('../extras/node-lemmer').Lemmer;
+var Lemmer = require('node-lemmer').Lemmer;
 var lemmerEng = new Lemmer('english');
 
 function lemmatize(word){
