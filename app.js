@@ -1,4 +1,5 @@
 //app-independent dependencies
+global.__base = __dirname + '/';
 var express = require('express');
 var path = require('path');
 var favicon = require('static-favicon');
@@ -9,11 +10,12 @@ var cors = require('cors');
 var app = express();
 var _ = require('underscore');
 
+
 //app-dependant local dependencies
-var py = require('./pybridge.js');
-var wn = require('./wordnet.js');
-var nlp = require('./nlp.js');
-var pred = require('./predict.js');
+var py = require('./routes/pybridge.js');
+var wn = require('./routes/wordnet.js');
+var nlp = require('./routes/nlp.js');
+var pred = require('./routes/predict.js');
 
 
 //app setup
@@ -31,23 +33,6 @@ app.get('/', function(req, res){
 	res.render('main');
 });
 
-function manipulate(data){
-	var pred = {};
-	data.forEach(function(d){
-		for(var type in d.output){
-			d.output[type].forEach(function(pair, index){
-				if(!(pair[0] in pred)){
-					pred[pair[0]] = {count: 0, freq: 0};
-				}
-					pred[pair[0]].count += 1;
-					pred[pair[0]].freq += pair[1];
-			});
-		}
-	});
-	pred = _.sortBy(_.map(pred, function(k, v){ return [v, k.count, k.freq];}), function(x){ return -(x[1]*10 + x[2])});
-	return pred.splice(0,10);
-}
-
 app.get('/suggest/:text', function(req,res){
 	var totalD = [];
 	var text = req.params.text;
@@ -55,7 +40,7 @@ app.get('/suggest/:text', function(req,res){
 	extracts.forEach(function(extract){
 		totalD.push({"input": extract.input, "output" : pred.getRel(extract.input, pred.getModType(extract.tag))});
 	});
-	res.send(manipulate(totalD));
+	res.send(pred.manipulate(totalD));
 });
 
 app.get('/predict/:text', function(req,res){
@@ -66,6 +51,11 @@ app.get('/predict/:text', function(req,res){
 		totalD.push({"input": extract.input, "output" : pred.getRel(extract.input, pred.getModType(extract.tag))});
 	});
 	res.send(totalD);
+});
+
+app.get('/game/:command', function(req,res){
+	var environment = req.params.command
+	res.send(environment);
 });
 
 //predict specific routes
