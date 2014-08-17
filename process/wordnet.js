@@ -2,7 +2,7 @@ var async = require('async');
 var WordPOS = require('wordpos');
 var wordpos = new WordPOS();
 var wn = require('wordnet-magic');
-wn.registerDatabase(__base + 'node_modules/wordnet-magic/data/sqlite-31.db');
+wn.registerDatabase(__base + './files/sqlite-31.db');
 
 exports.getRandom = function(number, callback){
 	wordpos.rand({starstWith: '', count: number}, callback);
