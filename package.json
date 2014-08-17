@@ -17,14 +17,11 @@
     "static-favicon": "^1.0.2",
     "underscore": "^1.6.0",
     "natural": "^0.1.28",
-    "node-lemmer": "git+ssh://git@github.com:grachev/node-lemmer.git",
-    "pos": "^0.1.7"
-  },
-  "devDependencies":{
+    "pos": "^0.1.7",
+    "request": "^2.40.0",
     "wordnet-magic": "git+ssh://git@github.com:Planeshifter/node-wordnet-magic.git",
     "wordpos": "git+ssh://git@github.com:moos/wordpos.git",
     "prettyjson": "^1.0.0",
-    "request": "^2.40.0",
     "WNdb": "^3.1.1"
   },
   "description": "Hello",
