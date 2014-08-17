@@ -10,13 +10,9 @@ var cors = require('cors');
 var app = express();
 var _ = require('underscore');
 
-
 //app-dependant local dependencies
-var py = require('./routes/pybridge.js');
-var wn = require('./routes/wordnet.js');
-var nlp = require('./routes/nlp.js');
 var pred = require('./routes/predict.js');
-
+var nlp = require('./routes/nlp.js');
 
 //app setup
 app.set('views', path.join(__dirname, 'views'));
@@ -63,48 +59,53 @@ app.get('/pred/getRel/:word/:type', function(req,res){
 	res.send(pred.getRel(req.params.word, req.params.type));
 });
 
-//py specific routes
+if (app.get('env') === 'development') {
+	var py = require('./routes/pybridge.js');
+	var wn = require('./routes/wordnet.js');
+	
+	//py specific routes
 
-app.get('/py/path/:v1/:o1/:v2/:o2', function(req, res){
-	py.getPath(req.params.v1, req.params.o1, req.params.v2, req.params.o2, function(obj){
-		res.send(obj);
+	app.get('/py/path/:v1/:o1/:v2/:o2', function(req, res){
+		py.getPath(req.params.v1, req.params.o1, req.params.v2, req.params.o2, function(obj){
+			res.send(obj);
+		});
 	});
-});
 
-app.get('/py/relevant/:list', function(req, res){
-	var list = req.params.list.split(',');
-	py.getObjects(list, function(objects){
-		res.json(objects);
+	app.get('/py/relevant/:list', function(req, res){
+		var list = req.params.list.split(',');
+		py.getObjects(list, function(objects){
+			res.json(objects);
+		});
 	});
-});
 
-app.get('/py/predict/:text', function(req, res){
-	py.predict(req.params.text, function(data){
-		res.json(data);
+	app.get('/py/predict/:text', function(req, res){
+		py.predict(req.params.text, function(data){
+			res.json(data);
+		});
 	});
-});
 
-//nlp specific routes
+	//nlp specific routes
 
-app.get('/nlp/lemmatize/:word', function(req,res){
-	res.json(nlp.lemmatize(req.params.word));
-});
-
-app.get('/nlp/postag/:text', function(req, res){
-	res.json(nlp.posTag(req.params.text));
-});
-
-app.get('/nlp/extractvna/:text', function(req, res){
-	res.json(nlp.extractLemmatized(req.params.text));
-});
-
-//wn specific routes
-
-app.get('/wn/random/:count', function(req, res){
-	wn.getRandom(req.params.count, function(data){
-		res.json(data)
+	app.get('/nlp/lemmatize/:word', function(req,res){
+		res.json(nlp.lemmatize(req.params.word));
 	});
-});
+
+	app.get('/nlp/postag/:text', function(req, res){
+		res.json(nlp.posTag(req.params.text));
+	});
+
+	app.get('/nlp/extractvna/:text', function(req, res){
+		res.json(nlp.extractLemmatized(req.params.text));
+	});
+
+	//wn specific routes
+
+	app.get('/wn/random/:count', function(req, res){
+		wn.getRandom(req.params.count, function(data){
+			res.json(data)
+		});
+	});
+}
 
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {
