@@ -14,3 +14,11 @@ svg{
   font-family: 'Open Sans';
   font-weight: 200;
 }
+
+
+#d3div{
+	height: 100%;
+	width: 100%;
+	z-index: 1;
+	position: fixed;
+}

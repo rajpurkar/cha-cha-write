@@ -49,14 +49,6 @@ h1,h2,h3,li,p{
 	text-align:justify;
 	text-justify:inter-word;
 }
-
-#d3div{
-	height: 100%;
-	width: 100%;
-	z-index: 1;
-	position: fixed;
-}
-
 /*
 div{
 	border: 1px solid #333;
