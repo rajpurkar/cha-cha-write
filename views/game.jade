@@ -10,9 +10,12 @@ html
 		link(href='//fonts.googleapis.com/css?family=Open+Sans:100,200,300,400', rel='stylesheet', type='text/css')
 		link(rel='stylesheet', type='text/css', href='/stylesheets/bootstrap.css', media='all')
 		link(rel='stylesheet', type='text/css', href='/stylesheets/drawing.css', media='all')
+		link(rel='stylesheet', type='text/css', href='/stylesheets/game.css', media='all')
 	body
 		section
 			#d3div
+			#timer
+				| 0
 		script.
 			env =  "#{env}"
 		script(src="/javascripts/jquery.js")

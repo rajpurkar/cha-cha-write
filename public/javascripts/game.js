@@ -206,14 +206,29 @@
 			.style("fill", function(d) { 
 				var group = d.id.split(',')[1];
 				if(group === 'i'){
-					return "#fdae6b";
+					return "#1c64a6";
 				}else{
-					return "#9ecae1";
+					return "#bbee58";
 				}
 			});
 			nodeEnter.append("svg:text")
 			.attr("text-anchor", "middle")
-			.attr("class","textClass")
+			.attr('class', function(d){
+				var group = d.id.split(',')[1];
+				if(group === 'i'){
+					return "textClass person";
+				}else{
+					return "textClass action";
+				}
+			})
+			.style("fill", function(d){
+				var group = d.id.split(',')[1];
+				if(group === 'i'){
+					return "#fff";
+				}else{
+					return "#000";
+				}
+			})
 			.text( function(d){ 
 				return d.id.split(',')[0];
 				/*if(d.id.split(' ')[1] == "i"){
@@ -296,6 +311,7 @@
 	}
 
 	function playGame(){
+		$("#timer").text(count);
 		for(var person in data){
 			var added = false;
 			var changedL = false;

@@ -1,0 +1,34 @@
+#timer{
+	position: absolute;
+	font-size: 120px;
+	margin: 20px;
+	z-index: 5;
+	font-weight: 100;
+	color: #aaa;
+	line-height: 100px;
+	height: 100px;
+	-webkit-user-select: none; /* Chrome/Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+}
+
+
+body{
+	background-color: rgb(245,245,245);
+}
+
+.textClass{  pointer-events: none;
+  font-size: 14px;
+  font-family: 'Open Sans';
+  font-weight: 100;
+}
+
+.person{
+	font-size: 24px;
+	color: white;
+}
+
+.action{
+	font-size: 14px;
+	
+}
