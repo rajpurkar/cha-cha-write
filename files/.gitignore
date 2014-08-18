@@ -1,3 +1,5 @@
 *.db
 *.txt
 *.tsv
+ppl-act.json
+.gitignore
