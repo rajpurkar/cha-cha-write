@@ -32,6 +32,10 @@ app.get('/', function(req, res){
 	res.render('main');
 });
 
+app.get('/game/:env', function(req, res){
+	res.render('game', {env: req.params.env});
+});
+
 app.get('/suggest/:text', function(req,res){
 	var totalD = [];
 	var text = req.params.text;
@@ -52,28 +56,32 @@ app.get('/predict/:text', function(req,res){
 	res.send(totalD);
 });
 
-app.get('/generateScene/:command/', function(req,res){
-	var environment = req.params.command;
-	var persons = game.getPersons(environment);
+function generateScene(env){
+	var persons = game.getPersons(env);
 	if(persons === undefined){
 		res.send('Could not find scene');
 	}
 	var scene = {};
 	for(var i = 0; i < persons.length; i++){
-		if(i > 8){ break;}
+		if(i > 20){ break;}
 		var obj = persons[i];
 		var actionsRaw = game.getActions(obj.person);
 		if(actionsRaw !== undefined){
 			var filtActions = [];
 			for (var j =0; j < actionsRaw.length; j++){
-				if(j > 5){ break;}
+				if(j > 7){ break;}
 				var action = actionsRaw[j];
 				filtActions.push(action.verb + " " + action.object);
 			}
 			scene[obj.person] = filtActions;
 		}
 	}
-	res.send(scene);
+	return scene;
+}
+
+app.get('/generateScene/:command/', function(req,res){
+	var environment = req.params.command;
+	res.send(generateScene(environment));
 });
 
 //game specific routes
