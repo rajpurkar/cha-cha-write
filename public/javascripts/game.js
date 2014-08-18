@@ -193,7 +193,14 @@
 			.attr("class", "node")
 
 			nodeEnter.append("svg:circle")
-			.attr("r", 45)
+			.attr("r", function(d){
+				var group = d.id.split(',')[1];
+				if(group === 'i'){
+					return 50;
+				}else{
+					return 45;
+				}
+			})
 			.attr("id",function(d) { return d.id;})
 			.attr("class","nodeStrokeClass")
 			.style("fill", function(d) { 
@@ -308,23 +315,23 @@
 			graph.update();
 		}
 		count++;
-		if(count >10){
+		if(count >20){
 			clearInterval(timer);
 		}
 	}
 	
 	function initGame(){
-		var count = 0;
+		var c = 0;
 		for(var person in data){
-			if(count > 5) break;
+			if(c > 5) break;
 			addNodeWP(person + ",i", 1);
-			count++;
+			c++;
 		}
 		graph.update();
 	}
 	
 	function continueGame(){
-		timer = setInterval(playGame, 1500);
+		timer = setInterval(playGame, 1800);
 	}
 	
 	function generateScene(){
