@@ -13,6 +13,7 @@ var _ = require('underscore');
 //app-dependant local dependencies
 var pred = require('./process/predict.js');
 var nlp = require('./process/nlp.js');
+var game = require('./process/game.js');
 
 //app setup
 app.set('views', path.join(__dirname, 'views'));
@@ -51,9 +52,44 @@ app.get('/predict/:text', function(req,res){
 	res.send(totalD);
 });
 
-app.get('/game/:command', function(req,res){
-	var environment = req.params.command
-	res.send(environment);
+app.get('/generateScene/:command/', function(req,res){
+	var environment = req.params.command;
+	var persons = game.getPersons(environment);
+	if(persons === undefined){
+		res.send('Could not find scene');
+	}
+	var scene = {};
+	for(var i = 0; i < persons.length; i++){
+		if(i > 8){ break;}
+		var obj = persons[i];
+		var actionsRaw = game.getActions(obj.person);
+		if(actionsRaw !== undefined){
+			var filtActions = [];
+			for (var j =0; j < actionsRaw.length; j++){
+				if(j > 5){ break;}
+				var action = actionsRaw[j];
+				filtActions.push(action.verb + " " + action.object);
+			}
+			scene[obj.person] = filtActions;
+		}
+	}
+	res.send(scene);
+});
+
+//game specific routes
+app.get('/game/persons/:command', function(req,res){
+	var environment = req.params.command;
+	res.send(game.getPersons(environment));
+});
+
+app.get('/game/objects/:command', function(req,res){
+	var environment = req.params.command;
+	res.send(game.getObjects(environment));
+});
+
+app.get('/game/actions/:person', function(req, res){
+	var person = req.params.person;
+	res.send(game.getActions(person));
 });
 
 //predict specific routes
