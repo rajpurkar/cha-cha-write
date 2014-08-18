@@ -31,16 +31,18 @@ function convertPeopleToActions(filename, callback){
 			if(!(person in dict)){
 				dict[person] = [];
 			}
-			var a = {verb:row[0].split(' ')[0], noun:"", adj:"", freq:row[2]};
+			var a = {verb:row[0].split(' ')[0], object:row[1].split(' ')[0], freq:row[2]};
+			/*
 			var object = row[1].split(' ');
 			if(object[1] === "adj"){
 				a.adj = object[0];
 			}else{
 				a.noun = object[0];
 			}
+			*/
 			dict[person].push(a);
 		}
-	callback(dict);
+		callback(dict);
 	});
 }
 
@@ -65,19 +67,43 @@ function convertLocationToObjects(filename, callback){
 	});
 }
 
+function filterPeopleToActions(filename1, filename2, callback){
+	var p2a = JSON.parse(fs.readFileSync(filename1));
+	var l2p = JSON.parse(fs.readFileSync(filename2));
+	var validPersons = {};
+	for(var location in l2p){
+		(l2p[location]).forEach(function(obj){
+			validPersons[obj.person] = true;
+		});
+	}
+	var filtp2a = {}
+	for(var person in p2a){
+		var personMod = person.split(' ')[0];
+		if(personMod in validPersons){
+			filtp2a[personMod] = p2a[person];
+		}
+	}
+	callback(filtp2a);
+}
+
 
 /*
-convertLocationToPeople("loc-ppl.tsv", function(data){
-	fs.writeFileSync("loc-ppl.json", JSON.stringify(data));
+convertLocationToPeople("../files/loc-ppl.tsv", function(data){
+	fs.writeFileSync("../files/loc-ppl.json", JSON.stringify(data));
 });
 */
 /*
-convertPeopleToActions("reverb-clone6.tsv", function(data){
-	fs.writeFileSync("ppl-act.json", JSON.stringify(data));
+convertPeopleToActions("../files/reverb-clone6.tsv", function(data){
+	fs.writeFileSync("../files/ppl-act.json", JSON.stringify(data));
 });
 */
 /*
-convertLocationToObjects("objects_at_locations.txt", function(data){
-	fs.writeFileSync("loc-obj.json", JSON.stringify(data));
+convertLocationToObjects("../files/objects_at_locations.txt", function(data){
+	fs.writeFileSync("../files/loc-obj.json", JSON.stringify(data));
+});
+*/
+/*
+filterPeopleToActions("../files/ppl-act.json", "../files/loc-ppl.json", function(data){
+	fs.writeFileSync("../files/ppl-act-filt.json", JSON.stringify(data));
 });
 */
