@@ -16,14 +16,14 @@
     "jade": "^1.3.1",
     "morgan": "^1.0.1",
     "natural": "^0.1.28",
-    "node-lemmer": "git+ssh://git@github.com:grachev/node-lemmer.git",
+    "node-lemmer": "git+ssh://github.com:grachev/node-lemmer.git",
     "pos": "^0.1.7",
     "prettyjson": "^1.0.0",
     "request": "^2.40.0",
     "static-favicon": "^1.0.2",
     "underscore": "^1.6.0",
-    "wordnet-magic": "git+ssh://git@github.com:Planeshifter/node-wordnet-magic.git",
-    "wordpos": "git+ssh://git@github.com:moos/wordpos.git"
+    "wordnet-magic": "git+ssh://github.com:Planeshifter/node-wordnet-magic.git",
+    "wordpos": "git+ssh://github.com:moos/wordpos.git"
   },
   "description": "Hello",
   "main": "app.js",
