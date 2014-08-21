@@ -59,9 +59,9 @@ app.get('/predict/:text', function(req,res){
 function generateScene(env){
 	var persons = game.getPersons(env);
 	if(persons === undefined){
-		res.send('Could not find scene');
+		return 'Could not find scene';
 	}
-	var scene = {};
+	var scene = {"persons": {}, "objects": []};
 	for(var i = 0; i < persons.length; i++){
 		if(i > 20){ break;}
 		var obj = persons[i];
@@ -73,9 +73,10 @@ function generateScene(env){
 				var action = actionsRaw[j];
 				filtActions.push(action.verb + " " + action.object);
 			}
-			scene[obj.person] = filtActions;
+			scene.persons[obj.person] = filtActions;
 		}
 	}
+	scene.objects = game.getObjects(env);
 	return scene;
 }
 
