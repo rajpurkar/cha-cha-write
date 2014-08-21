@@ -13,27 +13,25 @@ html
 		link(rel='stylesheet', type='text/css', href='/stylesheets/main.css', media='all')
 	body
 		section
-			.row
-				#menu.col-sm-2
-					.row.menuoption
-						button.btn.btn-default.btn-lg(type='button')
-							span.glyphicon.glyphicon-plus-sign
-					.row.menuoption
-						button.btn.btn-default.btn-lg(type='button')
-							span.glyphicon.glyphicon-floppy-save
-					.row.menuoption
-						button.btn.btn-default.btn-lg(type='button')
-							span.glyphicon.glyphicon-refresh
-					.row.menuoption
-						button.btn.btn-default.btn-lg(type='button')
-							span.glyphicon.glyphicon-flash
-				#content-col.col-sm-4
-					#doc(contenteditable='true')
-						.clear
-					#sidebar
-						strong Try Writing About: 
-						#sidebar-text
-				#d3div
+			#menu.col-sm-2.hidden-xs.hidden-sm
+				.row.menuoption
+					button.btn.btn-default.btn-lg(type='button')
+						span.glyphicon.glyphicon-plus-sign
+				.row.menuoption
+					button.btn.btn-default.btn-lg(type='button')
+						span.glyphicon.glyphicon-floppy-save
+				.row.menuoption
+					button.btn.btn-default.btn-lg(type='button')
+						span.glyphicon.glyphicon-refresh
+				.row.menuoption
+					button.btn.btn-default.btn-lg(type='button')
+						span.glyphicon.glyphicon-flash
+			#doc.col-xs-4(contenteditable='true')
+				.clear
+			#sidebar
+				strong Try Writing About: 
+				#sidebar-text
+			#d3div
 		script(src="/javascripts/jquery.js")
 		script(src="http://d3js.org/d3.v3.min.js")
 		script(src="/javascripts/main.js")
