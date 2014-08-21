@@ -3,7 +3,7 @@ body {
 	font-family: "Open Sans", sans-serif;
 	font-size: 16px;
 	font-weight: 300;
-	min-height: 100%;
+	height: 100%;
 }
 
 h1,h2,h3,li,p{
@@ -11,9 +11,11 @@ h1,h2,h3,li,p{
 }
 
 #doc {
-	margin: 12px auto;
+	margin: 12px 10px;
 	background: #fff;
-	height: 600px;
+	height:90vh;
+	width: 30vw;
+	min-width: 200px;
 	padding: 35px 35px;
 	outline: none;
 	overflow:scroll;
@@ -49,8 +51,3 @@ h1,h2,h3,li,p{
 	text-align:justify;
 	text-justify:inter-word;
 }
-/*
-div{
-	border: 1px solid #333;
-}
-*/
