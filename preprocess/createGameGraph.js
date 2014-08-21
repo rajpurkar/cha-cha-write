@@ -50,9 +50,9 @@ function convertLocationToObjects(filename, callback){
 	fs.readFile(filename, function(err, data){
 		var filt = String(data).split('\n');
 		var dict = {}
-		var header = filt[0].split('\t');
+		var header = filt[0].split(new RegExp('\t+'));
 		for(var i = 1; i < filt.length; i++){
-			var row = (filt[i]).split('\t');
+			var row = (filt[i]).split(new RegExp('\t+'));
 			if(!(row[0] in dict)){
 				dict[row[0]] = [];
 			}
@@ -62,6 +62,27 @@ function convertLocationToObjects(filename, callback){
 				a[header[j]] = row[j];
 			}
 			dict[row[0]].push(a);
+		}
+		callback(dict);
+	});
+}
+
+function convertPersonToVerb(filename, callback){
+		fs.readFile(filename, function(err, data){
+		var filt = String(data).split('\n');
+		var dict = {}
+		var header = filt[0].split(new RegExp('\t+'));
+		for(var i = 1; i < filt.length; i++){
+			var row = (filt[i]).split(new RegExp('\t+'));
+			var a = {}
+			a.verb = row[1];
+			for(var j= 2; j < header.length; j++){
+				a[header[j]] = row[j];
+			}
+			if(!(String(row[0]) in dict)){
+				dict[String(row[0])] = [];
+			}
+			dict[String(row[0])].push(a);
 		}
 		callback(dict);
 	});
@@ -97,13 +118,21 @@ convertPeopleToActions("../files/reverb-clone6.tsv", function(data){
 	fs.writeFileSync("../files/ppl-act.json", JSON.stringify(data));
 });
 */
+
 /*
-convertLocationToObjects("../files/objects_at_locations.txt", function(data){
+convertLocationToObjects("../files/all_data/location-object.tsv", function(data){
+	//console.log(data);
 	fs.writeFileSync("../files/loc-obj.json", JSON.stringify(data));
 });
 */
+
 /*
 filterPeopleToActions("../files/ppl-act.json", "../files/loc-ppl.json", function(data){
 	fs.writeFileSync("../files/ppl-act-filt.json", JSON.stringify(data));
 });
 */
+
+convertPersonToVerb("../files/all_data/person-verb.tsv", function(data){
+	//console.log(data);
+	fs.writeFileSync("../files/per-verb.json", JSON.stringify(data));
+});

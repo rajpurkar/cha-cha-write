@@ -6,7 +6,10 @@
 		this.addNode = function (id) {
 			var ni = {};
 			ni.id = id;
-			if(id.split(',')[1] === "i"){
+			var group = id.split(',')[1];
+			if(group === "i"){
+			}else if(group == "o"){
+
 			}else{
 				var node = findNode(id.split(',').splice(-2).join());
 				var theta = Math.random()*2*3.14;
@@ -207,6 +210,8 @@
 				var group = d.id.split(',')[1];
 				if(group === 'i'){
 					return "#1c64a6";
+				}else if(group === "o"){
+					return "#FFADD6"
 				}else{
 					return "#bbee58";
 				}
@@ -312,7 +317,7 @@
 
 	function playGame(){
 		$("#timer").text(count);
-		for(var person in data){
+		for(var person in data.persons){
 			var added = false;
 			var changedL = false;
 			var removedL = false;
@@ -320,7 +325,7 @@
 			if(graph.findNodeIndex(person + ",i") === -1){
 				added = addNodeWP(person + ",i", 0.02);
 			} else{
-				changedL = changeActionWP(person + ",i", data[person], 0.1);
+				changedL = changeActionWP(person + ",i", data.persons[person], 0.1);
 				if(!changedL){
 					removed = removeNodeWP(person+",i", 0.01);
 				}
@@ -338,10 +343,15 @@
 	
 	function initGame(){
 		var c = 0;
-		for(var person in data){
+		for(var person in data.persons){
 			if(c > 5) break;
 			addNodeWP(person + ",i", 1);
 			c++;
+		}
+		for(var i = 0; i < data.objects.length; i++){
+			var obj = data.objects[i];
+			if(i > 5) break;
+			addNodeWP(obj.object + ",o", 1);
 		}
 		graph.update();
 	}
@@ -352,7 +362,7 @@
 	
 	function generateScene(){
 		$.get( "/generateScene/" + window.env, function(d){
-			data = d;
+			data = d
 			initGame();
 			window.setTimeout(continueGame, 2000);
 		});
